@@ -49,12 +49,12 @@ bootstrap:
   default_admin_password: "z&dGs*L7qGmfupas"
 
 email:
-  enabled: false             # 没配 SMTP 前先关掉，避免发信报错；后台配好再开
-  host: "smtp.example.com"
-  port: 465
-  username: "your-email@example.com"
-  password: "your-password"
-  from: "no-reply@example.com"
+  enabled: true              # Resend SMTP：对 Render 云 IP 友好，免费 3000 封/月
+  host: "smtp.resend.com"
+  port: 465                  # 465 = SSL 直连，smtp_tls 必须 true
+  username: "resend"
+  password: "re_HXGTGf58_4Lbvys1meqMPXxULX2e83QK2"   # resend.com → API Keys → 创建，形如 re_xxxxxxxx
+  from: "Dujiao <no-reply@107211.xyz>"  # 域名先在 Resend 验证；未验证时只能发给你自己验证时的收件箱
   smtp_tls: true
 
 redis:
