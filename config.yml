@@ -22,7 +22,7 @@ database:
   # postgres 必须走 Supabase 【Session pooler 5432】！
   # 别用 6543 事务池：不支持 prepared statement，dujiao-next 会连上后报错。
   driver: "postgres"
-  dsn: "postgresql://postgres:XQcl39410687@db.lxulmgwdkdmukfznfxgx.supabase.co:5432/postgres"
+  dsn: "postgresql://postgres.lxulmgwdkdmukfznfxgx:XQcl39410687@aws-0-ap-northeast-1.pooler.supabase.com:5432/postgres?sslmode=require"
   pool:
     max_open_conns: 1        # 免费档连接有限，别开大
     max_idle_conns: 1
@@ -46,7 +46,7 @@ user_jwt:
 bootstrap:
   enabled: true              # 首次启动用默认管理员；登录后立刻改密码
   default_admin_username: "admin"
-  default_admin_password: "admin123"
+  default_admin_password: "z&dGs*L7qGmfupas"
 
 email:
   enabled: false             # 没配 SMTP 前先关掉，避免发信报错；后台配好再开
