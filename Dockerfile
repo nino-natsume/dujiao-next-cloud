@@ -1,16 +1,18 @@
+# Dujiao-Next 全栈镜像（dujiaonext/dujiao-next）· Render Free + Supabase 部署
+# 用法：push 到 GitHub 私有仓库，Render 自动构建
+# =============================================================================
 FROM dujiaonext/dujiao-next:v1.4.7
 
-# 容器内需要 redis（队列/缓存）和 supervisor（托管两个进程）
+# 容器内需要 redis（队列/缓存）；不再用 supervisor，改用 entrypoint.sh
 USER root
-RUN apk add --no-cache redis supervisor
+RUN apk add --no-cache redis && mkdir -p /app/uploads /app/logs /data && chmod -R 777 /app /data
 
 # 烧入配置（含密钥！本目录务必推送到【私有】仓库）
 COPY config.yml /app/config.yml
-COPY supervisord.conf /etc/supervisord.conf
-
-# 数据目录可写（uploads 免费层重启会丢，备胎保存商品图）
-RUN mkdir -p /app/db /app/uploads /app/logs /data && chmod -R 777 /app /data
+COPY entrypoint.sh /app/entrypoint.sh
+# 防 Windows CRLF 行尾把 shell 脚本搞坏，顺便加执行权限
+RUN sed -i 's/\r$//' /app/entrypoint.sh && chmod +x /app/entrypoint.sh
 
 EXPOSE 8080
 
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
+CMD ["/bin/sh", "/app/entrypoint.sh"]
