@@ -1,28 +1,34 @@
 # =============================================================================
-# Dujiao-Next 完整配置文件（v1.4.x）
-# 部署前必改的占位符（全文搜 < 找）：
-#   <APP_SECRET_KEY> / <JWT_SECRET> / <USER_JWT_SECRET>   -> 已生成填入（Windows 用 PowerShell，见回复里的命令）
-#   <SUPABASE_PROJECT_REF> / <SUPABASE_DB_PASSWORD> / <SUPABASE_REGION> -> Supabase 连接串
-#   <ADMIN_PASSWORD>
+# Dujiao-Next 完整配置文件（v1.4.x）· 教程模板版
+#
+# ⚠️ 本文件为【教程示例】，所有 <尖括号> 内容都是占位符，
+#    部署时必须替换成你自己的真实值，且【严禁】把真实文件提交到公开仓库！
+#
+# 必改占位符一览（全文搜 < 找）：
+#   <APP_SECRET_KEY> / <JWT_SECRET> / <USER_JWT_SECRET>   -> 三个随机密钥（互不相同）
+#   <SUPABASE_PROJECT_REF> / <SUPABASE_DB_PASSWORD> / <SUPABASE_REGION>
+#   <ADMIN_USERNAME> / <ADMIN_PASSWORD>
+#   <RESEND_API_KEY> / <YOUR_DOMAIN>
 #   <ADMIN_PATH>（自定义后台路径，务必改！）
 # =============================================================================
 
 app:
   # 应用级密钥：订单/用户数据的加解密。泄了=数据裸奔，丢了=数据没法恢复。
-  secret_key: "c7d08a6a45b759c9f47e154234e4c2cbf140945bec0e4707b260ca8af3d8ac66"
+  secret_key: "<APP_SECRET_KEY>"
 
 server:
   host: "0.0.0.0"
   port: 8080
   mode: "release"            # release / debug；调试才用 debug
-  trusted_proxies: []        # 托管平台代理 IP 未知先留空；极限流可查 Render 官方网段补
+  trusted_proxies: []        # 托管平台代理 IP 未知先留空；极限流可查托管平台官方网段补
   health_check: true         # 开启 /health，UptimeRobot 保活要打它
 
 database:
   # postgres 必须走 Supabase 【Session pooler 5432】！
   # 别用 6543 事务池：不支持 prepared statement，dujiao-next 会连上后报错。
+  # 也别用 db.xxx.supabase.co 直连：免费档是 IPv6-only，托管平台往往只有 IPv4。
   driver: "postgres"
-  dsn: "postgresql://postgres.lxulmgwdkdmukfznfxgx:XQcl39410687@aws-0-ap-northeast-1.pooler.supabase.com:5432/postgres?sslmode=require"
+  dsn: "postgresql://postgres.<SUPABASE_PROJECT_REF>:<SUPABASE_DB_PASSWORD>@aws-0-<SUPABASE_REGION>.pooler.supabase.com:5432/postgres?sslmode=require"
   pool:
     max_open_conns: 1        # 免费档连接有限，别开大
     max_idle_conns: 1
@@ -31,36 +37,36 @@ database:
 
 jwt:
   # 店主后台 JWT 签名密钥（与下方 user_jwt 必须不同！）
-  secret: "933df7da27d994a0a716efeba9c7219d6b3beab8621f871575dcdec7063b48ec"
+  secret: "<JWT_SECRET>"
   exp_hours: 72              # 后台登录有效期（小时）
   iss: "dujiao"
   aud: "dujiao"
 
 user_jwt:
   # 顾客商城 JWT 签名密钥（必须与 jwt.secret 不同！）
-  secret: "81c8ae52a27cda2733298cac59590096e23c5599e58813f22128aca04d033a3c"
+  secret: "<USER_JWT_SECRET>"
   exp_days: 30               # 顾客登录有效期（天）
   iss: "dujiao"
   aud: "dujiao-user"
 
 bootstrap:
   enabled: true              # 首次启动用默认管理员；登录后立刻改密码
-  default_admin_username: "admin"
-  default_admin_password: "z&dGs*L7qGmfupas"
+  default_admin_username: "<ADMIN_USERNAME>"
+  default_admin_password: "<ADMIN_PASSWORD>"
 
 email:
-  enabled: true              # Resend SMTP：对 Render 云 IP 友好，免费 3000 封/月
-  host: "smtp.resend.com"
+  enabled: true
+  host: "smtp.xxx.com"
   port: 465                  # 465 = 隐式 SSL，必须用 use_ssl
-  username: "resend"
-  password: "re_HXGTGf58_4Lbvys1meqMPXxULX2e83QK2"   # resend.com → API Keys → 创建，形如 re_xxxxxxxx
-  from: "no-reply@107211.xyz"        # 发件邮箱（与 from_name 分开填写）
-  from_name: "次元星域"              # 发件人显示名称
+  username: "xxx"
+  password: "<xxx_API_KEY>"       # xxx.com → API Keys → 创建
+  from: "<发件邮箱>@<YOUR_DOMAIN>"     # 发件邮箱（与 from_name 分开填写）
+  from_name: "你的站点名"            # 发件人显示名称
   use_ssl: true              # 465 用 SSL（与 use_tls 只能开一个）
   use_tls: false             # 必须 false，否则 465 上 STARTTLS 握手失败
 
 redis:
-  # 容器内由 supervisor 启动的 redis-server（127.0.0.1 回环）
+  # 容器内由 entrypoint.sh 启动的 redis-server（127.0.0.1 回环）
   enabled: true
   host: "127.0.0.1"
   port: 6379
@@ -84,7 +90,7 @@ upload:
 
 web:
   # 后台路径必改：/admin 会被扫描器疯狂爆破
-  admin_path: "/0d000721"
+  admin_path: "/<ADMIN_PATH>"
   title: "Dujiao"
   subtitle: "数字商品自动交易平台"
   # 首页轮播：商品图建议用外链图床（容器盘重启即丢）
