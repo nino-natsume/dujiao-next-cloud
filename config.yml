@@ -1,0 +1,90 @@
+# =============================================================================
+# Dujiao-Next 完整配置文件（v1.4.x）
+# 部署前必改的占位符（全文搜 < 找）：
+#   <APP_SECRET_KEY> / <JWT_SECRET> / <USER_JWT_SECRET>   -> 已生成填入（Windows 用 PowerShell，见回复里的命令）
+#   <SUPABASE_PROJECT_REF> / <SUPABASE_DB_PASSWORD> / <SUPABASE_REGION> -> Supabase 连接串
+#   <ADMIN_PASSWORD>
+#   <ADMIN_PATH>（自定义后台路径，务必改！）
+# =============================================================================
+
+app:
+  # 应用级密钥：订单/用户数据的加解密。泄了=数据裸奔，丢了=数据没法恢复。
+  secret_key: "c7d08a6a45b759c9f47e154234e4c2cbf140945bec0e4707b260ca8af3d8ac66"
+
+server:
+  host: "0.0.0.0"
+  port: 8080
+  mode: "release"            # release / debug；调试才用 debug
+  trusted_proxies: []        # 托管平台代理 IP 未知先留空；极限流可查 Render 官方网段补
+  health_check: true         # 开启 /health，UptimeRobot 保活要打它
+
+database:
+  # postgres 必须走 Supabase 【Session pooler 5432】！
+  # 别用 6543 事务池：不支持 prepared statement，dujiao-next 会连上后报错。
+  driver: "postgres"
+  dsn: "postgresql://postgres:XQcl39410687@db.lxulmgwdkdmukfznfxgx.supabase.co:5432/postgres"
+  pool:
+    max_open_conns: 1        # 免费档连接有限，别开大
+    max_idle_conns: 1
+    conn_max_lifetime_seconds: 0
+    conn_max_idle_time_seconds: 0
+
+jwt:
+  # 店主后台 JWT 签名密钥（与下方 user_jwt 必须不同！）
+  secret: "933df7da27d994a0a716efeba9c7219d6b3beab8621f871575dcdec7063b48ec"
+  exp_hours: 72              # 后台登录有效期（小时）
+  iss: "dujiao"
+  aud: "dujiao"
+
+user_jwt:
+  # 顾客商城 JWT 签名密钥（必须与 jwt.secret 不同！）
+  secret: "81c8ae52a27cda2733298cac59590096e23c5599e58813f22128aca04d033a3c"
+  exp_days: 30               # 顾客登录有效期（天）
+  iss: "dujiao"
+  aud: "dujiao-user"
+
+bootstrap:
+  enabled: true              # 首次启动用默认管理员；登录后立刻改密码
+  default_admin_username: "admin"
+  default_admin_password: "admin123"
+
+email:
+  enabled: false             # 没配 SMTP 前先关掉，避免发信报错；后台配好再开
+  host: "smtp.example.com"
+  port: 465
+  username: "your-email@example.com"
+  password: "your-password"
+  from: "no-reply@example.com"
+  smtp_tls: true
+
+redis:
+  # 容器内由 supervisor 启动的 redis-server（127.0.0.1 回环）
+  enabled: true
+  host: "127.0.0.1"
+  port: 6379
+  password: ""
+  db: 0
+
+queue:
+  # 异步队列，用同一个 redis，指定不同 db
+  enabled: true
+  host: "127.0.0.1"
+  port: 6379
+  password: ""
+  db: 1
+
+log:
+  path: "logs"               # 相对 /app 的日志目录，免费层重启会清
+  level: "info"              # debug / info / warn / error
+
+upload:
+  max_size: 10485760         # 上传大小上限（字节）= 10MB
+
+web:
+  # 后台路径必改：/admin 会被扫描器疯狂爆破
+  admin_path: "/0d000721"
+  title: "Dujiao"
+  subtitle: "数字商品自动交易平台"
+  # 首页轮播：商品图建议用外链图床（容器盘重启即丢）
+  carousel: []
+  footer: ""
