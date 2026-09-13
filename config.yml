@@ -54,7 +54,7 @@ email:
   port: 465                  # 465 = SSL 直连，smtp_tls 必须 true
   username: "resend"
   password: "re_HXGTGf58_4Lbvys1meqMPXxULX2e83QK2"   # resend.com → API Keys → 创建，形如 re_xxxxxxxx
-  from: "Dujiao <no-reply@107211.xyz>"  # 域名先在 Resend 验证；未验证时只能发给你自己验证时的收件箱
+  from: "次元星域 <no-reply@107211.xyz>"  # 域名先在 Resend 验证；未验证时只能发给你自己验证时的收件箱
   smtp_tls: true
 
 redis:
