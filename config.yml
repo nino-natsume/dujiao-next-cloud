@@ -51,11 +51,13 @@ bootstrap:
 email:
   enabled: true              # Resend SMTP：对 Render 云 IP 友好，免费 3000 封/月
   host: "smtp.resend.com"
-  port: 465                  # 465 = SSL 直连，smtp_tls 必须 true
+  port: 465                  # 465 = 隐式 SSL，必须用 use_ssl
   username: "resend"
   password: "re_HXGTGf58_4Lbvys1meqMPXxULX2e83QK2"   # resend.com → API Keys → 创建，形如 re_xxxxxxxx
-  from: "次元星域 <no-reply@107211.xyz>"  # 域名先在 Resend 验证；未验证时只能发给你自己验证时的收件箱
-  smtp_tls: true
+  from: "no-reply@107211.xyz"        # 发件邮箱（与 from_name 分开填写）
+  from_name: "次元星域"              # 发件人显示名称
+  use_ssl: true              # 465 用 SSL（与 use_tls 只能开一个）
+  use_tls: false             # 必须 false，否则 465 上 STARTTLS 握手失败
 
 redis:
   # 容器内由 supervisor 启动的 redis-server（127.0.0.1 回环）
